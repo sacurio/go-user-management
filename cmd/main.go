@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	h "net/http"
+	"user-management/internal/config"
 	"user-management/internal/db"
 	"user-management/internal/handler/http"
 	"user-management/internal/repository"
@@ -21,11 +22,15 @@ func main() {
 	// fmt.Println("List of users:")
 	// userHandler.ListUsers()
 
+	config.InitLogger()
+	config.Log.Info("Logger initialized")
+
 	database, err := db.InitDatabase()
 	if err != nil {
-		log.Fatalf("Error initializing database: %v", err)
+		config.Log.Fatalf("Error initializing database: %v", err)
 	}
 	defer database.Close()
+	config.Log.Info("Database connection initialized")
 
 	userRepo := repository.NewRepositoryDB(database)
 	userService := service.NewUserService(userRepo)
@@ -43,6 +48,6 @@ func main() {
 	})
 
 	port := ":8080"
-	fmt.Printf("Server is running on http://localhost%s\n", port)
+	config.Log.Infof("Server is running on http://localhost%s\n", port)
 	log.Fatal(h.ListenAndServe(port, nil))
 }
